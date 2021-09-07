@@ -1,6 +1,29 @@
-type ExampleEntity @entity {
+type Entrant @entity {
   id: ID!
-  count: BigInt!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
+  entrant: Bytes!
+  ticketAddress: Bytes!
+  ticketId: BigInt!
+  ticketQuantity: BigInt!
+}
+
+type User @entity {
+  id: ID!
+  totalCommon: BigInt
+  totalUncommon: BigInt
+  totalRare: BigInt
+  totalLegendary: BigInt
+  totalMythical: BigInt
+  totalGodLike: BigInt
+  totalDrop: BigInt
+}
+
+type Total @entity {
+  id: ID!
+  totalCommon: BigInt
+  totalUncommon: BigInt
+  totalRare: BigInt
+  totalLegendary: BigInt
+  totalMythical: BigInt
+  totalGodLike: BigInt
+  totalDrop: BigInt
 }

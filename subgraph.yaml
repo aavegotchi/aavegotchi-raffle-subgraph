@@ -1,16 +1,17 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: RafflesContract
-    network: mainnet
+    network: matic
     source:
       address: "0x6c723cac1E35FE29a175b287AE242d424c52c1CE"
       abi: RafflesContract
+      startBlock: 12602329
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - OwnershipTransferred
