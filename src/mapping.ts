@@ -29,19 +29,16 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
     total.totalMythical = BigInt.fromI32(0);
     total.totalGodLike = BigInt.fromI32(0);
     total.totalDrop = BigInt.fromI32(0);
+    total.totalUniqueUsers = BigInt.fromI32(0);
   }
 
   for (let index = 0; index < ticketItems.length; index++) {
     let element = ticketItems[index];
-
-    let entity = Entrant.load(event.transaction.from.toHex());
+    let entryID = event.params.entrant.toHexString() + "_" + event.block.timestamp.toString();
+    let entity = Entrant.load(entryID);
 
     // `null` checks allow to create entities on demand
     if (entity == null) {
-      let entryID =
-        event.params.entrant.toHexString() +
-        "_" +
-        event.block.timestamp.toString();
       entity = new Entrant(entryID);
       entity.entrant = event.params.entrant;
       entity.ticketId = element.ticketId;
@@ -75,8 +72,6 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
       total.totalDrop = total.totalDrop.plus(element.ticketQuantity);
     }
 
-    total.save();
-
     //Add user now
     let user = User.load(event.params.entrant.toHexString());
     if (user == null) {
@@ -88,6 +83,7 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
       user.totalMythical = BigInt.fromI32(0);
       user.totalGodLike = BigInt.fromI32(0);
       user.totalDrop = BigInt.fromI32(0);
+      total.totalUniqueUsers = total.totalUniqueUsers.plus(BigInt.fromI32(1))
     }
 
     if (entity.ticketId.equals(BigInt.fromI32(0))) {
@@ -118,14 +114,5 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
     user.save();
   }
 
-  // Entities only exist after they have been saved to the store;
-
-  // BigInt and BigDecimal math are supported
-  //entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  // entity.previousOwner = event.params.previousOwner
-  // entity.newOwner = event.params.newOwner
-
-  // Entities can be written to the store with `.save()`
+  total.save();
 }
