@@ -1,4 +1,4 @@
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   OwnershipTransferred,
   RaffleClaimPrize,
@@ -34,7 +34,6 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
     let element = ticketItems[index];
 
     let entryID = event.params.entrant.toHexString() + "_" + event.block.timestamp.toString() + "_" + element.ticketId.toString();
-    log.info(entryID, [])
     let entity = new Entrant(entryID);
     entity.entrant = event.params.entrant;
     entity.ticketId = element.ticketId;

@@ -14,21 +14,6 @@ function createEthereumParam(name: string, value: ethereum.Value): ethereum.Even
     return param
 }
 
-function createRaffleStartedEvent(): RaffleStarted {
-    let event = new RaffleStarted();
-    let params = new Array<ethereum.EventParam>();
-    
-    params.push(createEthereumParam("raffleId", ethereum.Value.fromI32(1)));
-    params.push(createEthereumParam("raffleEnd", ethereum.Value.fromI32(2)));
-    params.push(createEthereumParam("raffleEnd", ethereum.Value.fromI32(2)));
-    // params.push(createEthereumParam("_to", ethereum.Value.fromAddress(Address.fromString(to))))
-    // params.push(createEthereumParam("_value", ethereum.Value.fromSignedBigInt(value)))
-    event.parameters = params;
-
-    event.address = RAFFLE_CONTRACT;
-
-    return event;
-}
 
 function createRaffleTicketsEnteredEvent(tokenId: BigInt = BIGINT_ONE): RaffleTicketsEntered {
     let event = new RaffleTicketsEntered();
@@ -54,37 +39,6 @@ function createRaffleTicketsEnteredEvent(tokenId: BigInt = BIGINT_ONE): RaffleTi
     event.address = RAFFLE_CONTRACT;
     event.block.timestamp = BIGINT_ONE;
 
-    return event;
-}
-
-function createRaffleClaimPrizeEvent(from: string, to: string): RaffleClaimPrize {
-    ethereum.Value.fromAddress(Address.fromString(from));
-    let event = new RaffleClaimPrize(); 
-    let ids = new Array<BigInt>();
-    ids.push(BIGINT_ZERO)
-    ids.push(BIGINT_ONE)
-    ids.push(BIGINT_ZERO)
-    ids.push(BIGINT_ZERO)
-    ids.push(BIGINT_ZERO)
-    ids.push(BIGINT_ZERO)
-    
-    let values = new Array<ethereum.Tuple>();
-    
-    values.push(BIGINT_ZERO)
-    values.push(BIGINT_ONE)
-    values.push(BIGINT_ZERO)
-    values.push(BIGINT_ZERO)
-    values.push(BIGINT_ZERO)
-    values.push(BIGINT_ZERO)
-
-
-    event.parameters = new Array<ethereum.EventParam>();
-    event.parameters.push(createEthereumParam("_operator", ethereum.Value.fromAddress(Address.fromString(from))))
-    event.parameters.push(createEthereumParam("_from", ethereum.Value.fromAddress(Address.fromString(from))))
-    event.parameters.push(createEthereumParam("_to", ethereum.Value.fromAddress(Address.fromString(to))))
-    event.parameters.push(createEthereumParam("_ids", ethereum.Value.fromUnsignedBigIntArray(ids)))
-    event.parameters.push(createEthereumParam("_values", ethereum.Value.fromTupleArray(values)))
-    
     return event;
 }
 
