@@ -26,4 +26,5 @@ type Total @entity {
   totalMythical: BigInt
   totalGodLike: BigInt
   totalDrop: BigInt
+  totalUniqueUsers: BigInt
 }
