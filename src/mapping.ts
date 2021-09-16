@@ -121,4 +121,4 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
 
   // Entities can be written to the store with `.save()`
 }
-export { runTests } from "./tests/test";
+// export { runTests } from "./tests/test";
