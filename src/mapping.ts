@@ -18,7 +18,6 @@ export function handleRaffleStarted(event: RaffleStarted): void {}
 
 export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
   let ticketItems = event.params.ticketItems;
-
   let total = Total.load(event.params.raffleId.toString());
   if (total == null) {
     total = new Total(event.params.raffleId.toString());
@@ -34,21 +33,13 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
   for (let index = 0; index < ticketItems.length; index++) {
     let element = ticketItems[index];
 
-    let entity = Entrant.load(event.transaction.from.toHex());
-
-    // `null` checks allow to create entities on demand
-    if (entity == null) {
-      let entryID =
-        event.params.entrant.toHexString() +
-        "_" +
-        event.block.timestamp.toString();
-      entity = new Entrant(entryID);
-      entity.entrant = event.params.entrant;
-      entity.ticketId = element.ticketId;
-      entity.ticketAddress = element.ticketAddress;
-      entity.ticketQuantity = element.ticketQuantity;
-      entity.save();
-    }
+    let entryID = event.params.entrant.toHexString() + "_" + event.block.timestamp.toString() + "_" + element.ticketId.toString();
+    let entity = new Entrant(entryID);
+    entity.entrant = event.params.entrant;
+    entity.ticketId = element.ticketId;
+    entity.ticketAddress = element.ticketAddress;
+    entity.ticketQuantity = element.ticketQuantity;
+    entity.save();
 
     if (entity.ticketId.equals(BigInt.fromI32(0))) {
       total.totalCommon = total.totalCommon.plus(element.ticketQuantity);
@@ -129,3 +120,4 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
 
   // Entities can be written to the store with `.save()`
 }
+// export { runTests } from "./tests/test";
