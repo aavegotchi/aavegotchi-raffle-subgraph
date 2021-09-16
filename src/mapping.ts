@@ -34,11 +34,14 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
 
   for (let index = 0; index < ticketItems.length; index++) {
     let element = ticketItems[index];
-    let entryID = event.params.entrant.toHexString() + "_" + event.block.timestamp.toString();
-    let entity = Entrant.load(entryID);
+    let entity = Entrant.load(event.transaction.from.toHex());
 
     // `null` checks allow to create entities on demand
     if (entity == null) {
+      let entryID =
+        event.params.entrant.toHexString() +
+        "_" +
+        event.block.timestamp.toString();
       entity = new Entrant(entryID);
       entity.entrant = event.params.entrant;
       entity.ticketId = element.ticketId;
