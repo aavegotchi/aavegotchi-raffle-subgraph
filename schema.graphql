@@ -1,3 +1,4 @@
+# Schema v1
 type Entrant @entity {
   id: ID!
   entrant: Bytes!
@@ -26,4 +27,49 @@ type Total @entity {
   totalMythical: BigInt
   totalGodLike: BigInt
   totalDrop: BigInt
+}
+
+# Schema v2
+type Raffle @entity {
+  id: ID!
+  ticketPools: [RaffleTicketPool!]! @derivedFrom(field: "raffle")
+  winners: [RaffleWinner!]! @derivedFrom(field: "raffle")
+  entries: [RaffleEntrant!]! @derivedFrom(field: "raffle")
+  stats: Total
+}
+
+type Item @entity {
+  id: ID!
+  pool: RaffleTicketPool
+  quantity: BigInt!
+  address: String!
+}
+
+type RaffleTicketPool @entity {
+  id: ID! #raffle ID + ticket Id
+  raffle: Raffle
+  ticketId: BigInt
+  prizes: [Item!]! @derivedFrom(field: "pool")
+  winners: [RaffleWinner!]! @derivedFrom(field: "pool")
+  entries: [RaffleEntrant!]! @derivedFrom(field: "pool")
+}
+
+type RaffleWinner @entity {
+  id: ID!
+  item: Item
+  quantity: BigInt!
+  pool: RaffleTicketPool
+  raffle: Raffle
+  entrant: RaffleEntrant
+}
+
+type RaffleEntrant @entity {
+  id: ID!
+  address: String
+  pool: RaffleTicketPool
+  raffle: Raffle
+  ticketId: BigInt!
+  tickets: BigInt!
+  prizes: [RaffleWinner!]! @derivedFrom(field: "entrant")
+  user: User
 }
