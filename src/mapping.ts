@@ -6,16 +6,69 @@ import {
   RaffleStarted,
   RaffleTicketsEntered,
 } from "../generated/RafflesContract/RafflesContract";
-import { Entrant, Total, User } from "../generated/schema";
+import { Entrant, Item, RaffleEntrant, RaffleWinner, Total, User } from "../generated/schema";
+import { getOrCreateItem, getOrCreateRaffle, getOrCreateRaffleTicketPool, getOrCreateUser } from "./helper";
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {}
+/**
+ * RaffleWinner
+ * @param event 
+ */
+export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {
+  let raffle = getOrCreateRaffle(event.params.raffleId.toString());
+  let user = getOrCreateUser(event.transaction.from.toHexString())
+  let item = getOrCreateItem(event.params.prizeId.toString());
+  let winnerId = raffle.id + "-" + item.pool + "-" + item.id + "-" + user.id;
+  let winner = new RaffleWinner(winnerId);
+  winner.quantity = event.params.prizeQuantity;
+  winner.item = item.id;
+  winner.raffle = raffle.id;
+  winner.pool = item.pool;
+  winner.entrant = raffle.id + "-" + item.pool + "-" + event.transaction.from.toHexString()
+  winner.save();
+}
 
-export function handleRaffleRandomNumber(event: RaffleRandomNumber): void {}
+export function handleRaffleRandomNumber(event: RaffleRandomNumber): void {
 
-export function handleRaffleStarted(event: RaffleStarted): void {}
 
+
+}
+
+
+/**
+ * Raffle
+ * RafflePools
+ * RafflePoolPrizes
+ * @param event 
+ */
+export function handleRaffleStarted(event: RaffleStarted): void {
+  let raffle = getOrCreateRaffle(event.params.raffleId.toString());
+  raffle.save();
+  for(let i=0; i<event.params.raffleItems.length; i++) {
+    let items = event.params.raffleItems[i];
+
+    let poolId = raffle.id + "-pool-" + items.ticketId.toString();
+    let pool = getOrCreateRaffleTicketPool(poolId, raffle)
+    pool.ticketId = items.ticketId;
+    pool.save();
+
+    for(let j=0; j<items.raffleItemPrizes.length; j++) {
+      let data =  items.raffleItemPrizes[j];
+      let item = new Item(data.prizeId.toString());
+      item.pool = poolId;
+      item.quantity = data.prizeQuantity;
+      item.address = data.prizeAddress.toHexString();
+      item.save();
+    }
+  }
+  
+}
+
+/**
+ * Entrants
+ * @param event 
+ */
 export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
   let ticketItems = event.params.ticketItems;
 
@@ -116,16 +169,21 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
     }
 
     user.save();
+
+    let poolId = event.params.raffleId.toString() + "-pool-" + entity.ticketId.toString();
+    let raffle = getOrCreateRaffle(event.params.raffleId.toString())
+    let pool = getOrCreateRaffleTicketPool(poolId, raffle)
+    let raffleEntrant = RaffleEntrant.load(event.transaction.hash.toHexString());
+    if(raffleEntrant == null) {
+      let raffleEntrantId = raffle.id + "-" + pool.id + "-" + event.transaction.from.toHexString()
+      raffleEntrant = new RaffleEntrant(raffleEntrantId);
+      raffleEntrant.user = user.id;
+      raffleEntrant.raffle = raffle.id;
+      raffleEntrant.pool = pool.id;
+      raffleEntrant.address = event.transaction.from.toHexString();
+      raffleEntrant.ticketId = entity.ticketId;
+      raffleEntrant.quantity = entity.ticketQuantity;
+      raffleEntrant.save();
+    }
   }
-
-  // Entities only exist after they have been saved to the store;
-
-  // BigInt and BigDecimal math are supported
-  //entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  // entity.previousOwner = event.params.previousOwner
-  // entity.newOwner = event.params.newOwner
-
-  // Entities can be written to the store with `.save()`
 }

@@ -7,10 +7,12 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ aavegotchi/aavegotchi-matic-raffle",
     "create-local": "graph create --node http://localhost:8020/ aavegotchi/aavegotchi-matic-raffle",
     "remove-local": "graph remove --node http://localhost:8020/ aavegotchi/aavegotchi-matic-raffle",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aavegotchi/aavegotchi-matic-raffle"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aavegotchi/aavegotchi-matic-raffle",
+    "test": "graph test RafflesContract"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.19.0",
-    "@graphprotocol/graph-ts": "0.19.0"
+    "@graphprotocol/graph-cli": "0.23.1",
+    "@graphprotocol/graph-ts": "0.23.1",
+    "matchstick-as": "^0.2.0"
   }
 }
