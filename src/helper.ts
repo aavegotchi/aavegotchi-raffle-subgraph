@@ -1,7 +1,9 @@
+import { BigInt } from "@graphprotocol/graph-ts";
 import { Item, Raffle, RaffleTicketPool, Total, User } from "../generated/schema";
-import { BIGINT_ZERO } from "./constants";
+import { BIGINT_ONE, BIGINT_ZERO } from "./constants";
 
-export function getOrCreateRaffle(id: string): Raffle {
+export function getOrCreateRaffle(raffleId: BigInt): Raffle {
+    let id = raffleId.toString();
     let raffle = Raffle.load(id);
     if(raffle == null) {
         raffle = new Raffle(id);

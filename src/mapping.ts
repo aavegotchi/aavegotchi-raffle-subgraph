@@ -6,7 +6,7 @@ import {
   RaffleStarted,
   RaffleTicketsEntered,
 } from "../generated/RafflesContract/RafflesContract";
-import { Entrant, Item, RaffleEntrant, RaffleWinner, Total, User } from "../generated/schema";
+import { Entrant, Item, RaffleEntrant, RaffleUser, RaffleWinner, Total, User } from "../generated/schema";
 import { getOrCreateItem, getOrCreateRaffle, getOrCreateRaffleTicketPool, getOrCreateUser } from "./helper";
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
@@ -16,7 +16,7 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
  * @param event 
  */
 export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {
-  let raffle = getOrCreateRaffle(event.params.raffleId.toString());
+  let raffle = getOrCreateRaffle(event.params.raffleId);
   let user = getOrCreateUser(event.transaction.from.toHexString())
   let item = getOrCreateItem(event.params.prizeId.toString());
   let winnerId = raffle.id + "-" + item.pool + "-" + item.id + "-" + user.id;
@@ -26,14 +26,11 @@ export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {
   winner.raffle = raffle.id;
   winner.pool = item.pool;
   winner.entrant = raffle.id + "-" + item.pool + "-" + event.transaction.from.toHexString()
+  winner.raffleUser = raffle.id + "-" + event.transaction.from.toHexString()
   winner.save();
 }
 
-export function handleRaffleRandomNumber(event: RaffleRandomNumber): void {
-
-
-
-}
+export function handleRaffleRandomNumber(event: RaffleRandomNumber): void {}
 
 
 /**
@@ -43,7 +40,7 @@ export function handleRaffleRandomNumber(event: RaffleRandomNumber): void {
  * @param event 
  */
 export function handleRaffleStarted(event: RaffleStarted): void {
-  let raffle = getOrCreateRaffle(event.params.raffleId.toString());
+  let raffle = getOrCreateRaffle(event.params.raffleId);
   raffle.save();
   for(let i=0; i<event.params.raffleItems.length; i++) {
     let items = event.params.raffleItems[i];
@@ -72,9 +69,9 @@ export function handleRaffleStarted(event: RaffleStarted): void {
 export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
   let ticketItems = event.params.ticketItems;
 
-  let total = Total.load(event.params.raffleId.toString());
+  let total = Total.load(event.params.raffleId.toString() + "-raffle-stats");
   if (total == null) {
-    total = new Total(event.params.raffleId.toString());
+    total = new Total(event.params.raffleId.toString() + "-raffle-stats");
     total.totalCommon = BigInt.fromI32(0);
     total.totalUncommon = BigInt.fromI32(0);
     total.totalRare = BigInt.fromI32(0);
@@ -171,19 +168,35 @@ export function handleRaffleTicketsEntered(event: RaffleTicketsEntered): void {
     user.save();
 
     let poolId = event.params.raffleId.toString() + "-pool-" + entity.ticketId.toString();
-    let raffle = getOrCreateRaffle(event.params.raffleId.toString())
+    let raffle = getOrCreateRaffle(event.params.raffleId)
     let pool = getOrCreateRaffleTicketPool(poolId, raffle)
-    let raffleEntrant = RaffleEntrant.load(event.transaction.hash.toHexString());
-    if(raffleEntrant == null) {
-      let raffleEntrantId = raffle.id + "-" + pool.id + "-" + event.transaction.from.toHexString()
-      raffleEntrant = new RaffleEntrant(raffleEntrantId);
-      raffleEntrant.user = user.id;
-      raffleEntrant.raffle = raffle.id;
-      raffleEntrant.pool = pool.id;
-      raffleEntrant.address = event.transaction.from.toHexString();
-      raffleEntrant.ticketId = entity.ticketId;
-      raffleEntrant.quantity = entity.ticketQuantity;
-      raffleEntrant.save();
+    let entrantId = poolId + "-" + event.block.timestamp.toString();
+
+    let raffleEntrant = new RaffleEntrant(entrantId);
+    raffleEntrant.user = user.id;
+    raffleEntrant.raffle = raffle.id;
+    raffleEntrant.pool = pool.id;
+    raffleEntrant.address = event.transaction.from.toHexString();
+    raffleEntrant.ticketId = entity.ticketId;
+    raffleEntrant.quantity = entity.ticketQuantity;
+    raffleEntrant.save();
+    
+    let raffleUserId = poolId + "-" + event.transaction.from.toHexString();
+    let raffleUser = RaffleUser.load(raffleUserId);
+    if(raffleUser == null) {
+      raffleUser = new RaffleUser(raffleUserId);
+      raffleUser.user = user.id;
+      raffleUser.raffle = raffle.id;
+      raffleUser.pool = pool.id;
+      raffleUser.address = event.transaction.from.toHexString();
+      raffleUser.ticketId = entity.ticketId;
+      raffleUser.quantity = entity.ticketQuantity;
+      raffleUser.save();
+    } else {
+      let quantity = raffleUser.quantity
+      raffleUser.quantity = quantity.plus(entity.ticketQuantity);
     }
   }
+  
+
 }
