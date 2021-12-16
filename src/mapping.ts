@@ -18,7 +18,7 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {
   let raffle = getOrCreateRaffle(event.params.raffleId);
   let user = getOrCreateUser(event.transaction.from.toHexString())
-  let item = getOrCreateItem(event.params.prizeId.toString());
+  let item = getOrCreateItem(raffle.id + "-" + event.params.prizeId.toString());
   let winnerId = raffle.id + "-" + item.pool + "-" + item.id + "-" + user.id;
   let winner = new RaffleWinner(winnerId);
   winner.quantity = event.params.prizeQuantity;
@@ -52,7 +52,7 @@ export function handleRaffleStarted(event: RaffleStarted): void {
 
     for(let j=0; j<items.raffleItemPrizes.length; j++) {
       let data =  items.raffleItemPrizes[j];
-      let item = new Item(poolId + "-" + data.prizeId.toString());
+      let item = new Item(raffle.id + "-" + data.prizeId.toString());
       item.pool = poolId;
       item.quantity = data.prizeQuantity;
       item.address = data.prizeAddress.toHexString();
