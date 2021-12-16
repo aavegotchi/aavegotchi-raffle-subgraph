@@ -52,7 +52,7 @@ export function handleRaffleStarted(event: RaffleStarted): void {
 
     for(let j=0; j<items.raffleItemPrizes.length; j++) {
       let data =  items.raffleItemPrizes[j];
-      let item = new Item(data.prizeId.toString());
+      let item = new Item(poolId + "-" + data.prizeId.toString());
       item.pool = poolId;
       item.quantity = data.prizeQuantity;
       item.address = data.prizeAddress.toHexString();
