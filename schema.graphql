@@ -1,3 +1,4 @@
+# Schema v1
 type Entrant @entity {
   id: ID!
   entrant: Bytes!
@@ -8,22 +9,79 @@ type Entrant @entity {
 
 type User @entity {
   id: ID!
-  totalCommon: BigInt
-  totalUncommon: BigInt
-  totalRare: BigInt
-  totalLegendary: BigInt
-  totalMythical: BigInt
-  totalGodLike: BigInt
-  totalDrop: BigInt
+  totalCommon: BigInt!
+  totalUncommon: BigInt!
+  totalRare: BigInt!
+  totalLegendary: BigInt!
+  totalMythical: BigInt!
+  totalGodLike: BigInt!
+  totalDrop: BigInt!
+  entrants: [RaffleEntrant!]! @derivedFrom(field: "user")
 }
 
 type Total @entity {
   id: ID!
-  totalCommon: BigInt
-  totalUncommon: BigInt
-  totalRare: BigInt
-  totalLegendary: BigInt
-  totalMythical: BigInt
-  totalGodLike: BigInt
-  totalDrop: BigInt
+  totalCommon: BigInt!
+  totalUncommon: BigInt!
+  totalRare: BigInt!
+  totalLegendary: BigInt!
+  totalMythical: BigInt!
+  totalGodLike: BigInt!
+  totalDrop: BigInt!
+}
+
+# Schema v2
+type Raffle @entity {
+  id: ID!
+  ticketPools: [RaffleTicketPool!]! @derivedFrom(field: "raffle")
+  winners: [RaffleWinner!]! @derivedFrom(field: "raffle")
+  entrants: [RaffleEntrant!]! @derivedFrom(field: "raffle")
+  stats: Total!
+}
+
+type RaffleTicketPool @entity {
+  id: ID! #raffle ID + ticket Id
+  raffle: Raffle!
+  ticketId: BigInt!
+  prizes: [Item!]! @derivedFrom(field: "pool")
+  winners: [RaffleWinner!]! @derivedFrom(field: "pool")
+  entrants: [RaffleEntrant!]! @derivedFrom(field: "pool")
+}
+
+type Item @entity {
+  id: ID!
+  pool: RaffleTicketPool!
+  quantity: BigInt!
+  address: String!
+}
+
+type RaffleWinner @entity {
+  id: ID!
+  item: Item
+  quantity: BigInt!
+  pool: RaffleTicketPool!
+  raffle: Raffle!
+  raffleUser: RaffleUser!
+  address: String
+}
+
+type RaffleEntrant @entity {
+  id: ID!
+  address: String
+  pool: RaffleTicketPool!
+  raffle: Raffle!
+  ticketId: BigInt!
+  quantity: BigInt!
+  user: User!
+}
+
+type RaffleUser @entity {
+  id: ID!
+  address: String
+  pool: RaffleTicketPool!
+  raffle: Raffle!
+  ticketId: BigInt!
+  quantity: BigInt!
+  prizes: [RaffleWinner!]! @derivedFrom(field: "raffleUser")
+  user: User!
 }
