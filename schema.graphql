@@ -61,8 +61,8 @@ type RaffleWinner @entity {
   quantity: BigInt!
   pool: RaffleTicketPool!
   raffle: Raffle!
-  entrant: RaffleEntrant!
   raffleUser: RaffleUser!
+  address: String
 }
 
 type RaffleEntrant @entity {
@@ -72,7 +72,6 @@ type RaffleEntrant @entity {
   raffle: Raffle!
   ticketId: BigInt!
   quantity: BigInt!
-  prizes: [RaffleWinner!]! @derivedFrom(field: "entrant")
   user: User!
 }
 

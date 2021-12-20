@@ -19,14 +19,14 @@ export function handleRaffleClaimPrize(event: RaffleClaimPrize): void {
   let raffle = getOrCreateRaffle(event.params.raffleId);
   let user = getOrCreateUser(event.transaction.from.toHexString())
   let item = getOrCreateItem(raffle.id + "-" + event.params.prizeId.toString());
-  let winnerId = raffle.id + "-" + item.pool + "-" + item.id + "-" + user.id;
+  let winnerId = item.pool + "-" + item.id + "-" + user.id;
   let winner = new RaffleWinner(winnerId);
   winner.quantity = event.params.prizeQuantity;
   winner.item = item.id;
   winner.raffle = raffle.id;
   winner.pool = item.pool;
-  winner.entrant = raffle.id + "-" + item.pool + "-" + event.transaction.from.toHexString()
-  winner.raffleUser = raffle.id + "-" + event.transaction.from.toHexString()
+  winner.raffleUser = item.pool + "-" + event.transaction.from.toHexString();
+  winner.address =  event.transaction.from.toHexString();
   winner.save();
 }
 
